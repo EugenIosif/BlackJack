@@ -22,9 +22,8 @@ typedef enum States
     gameOver,
     quitGame,
     dealFirstHand,
-    hitPlayer,
-    stayPlayer, 
-    blackjack,
+    handlePlayer,
+    handleHouse
     //add more gamestates
 }States;
 
@@ -36,7 +35,7 @@ typedef struct Player
     unsigned short int sumOfCards;
     struct playerState {
         unsigned char isStaying : 1;
-        unsigned char isDead : 1;
+        unsigned char isBust : 1;
         unsigned char isWinner : 1;
         unsigned char _blank : 1;
         unsigned char _reserved : 4;
@@ -60,6 +59,7 @@ void generateDeck(void);
 void printDeck(void);
 void deleteFromDeck(Card card);
 void putCardInPlayersHand(int round, Card card);
+void handleThisPlayer(int playerNo);
 Player generatePlayer(int position);
 Card dealCard(void);
 
@@ -80,7 +80,8 @@ void initFunction(void)
 {
     srand(time(NULL));
     generateDeck();
-    state = startGame;
+    numberOfPlayers = 2;
+    state = dealFirstHand;
 }
 
 void testFunction(void)
@@ -106,8 +107,10 @@ int main(void)
             scanf("%c", &a);
             //printf("\n");
 
-            if('s' == a)
+            switch (a)
             {
+            case 's':
+                /* code */
                 printf("introduceti numarul de jucatori: ");
                 scanf("%d", &numberOfPlayers);
                 printf("\n");
@@ -118,37 +121,50 @@ int main(void)
                 }
                 
                 state = dealFirstHand;
-            }
-            else if('q' == a)
-            {
-                state = quitGame;
-            }
-            else
-            {
-                printf("WRONG!\n");
-                state = startGame;
-            }
+                break;
             
+            case 'q':
+                /* code */                
+                state = quitGame;
+                break;
+
+            default:
+            
+                printf("WRONG!\n");
+                //state = startGame;
+                break;
+            }            
             break;
 
         case quitGame:
-            /* code */
+            /* code */            
+            printf("Ciuss bye!\n");
             break;
         
         case dealFirstHand:
             /* code */
+            for(int i = 0; i < 2; i++) //two cards per player
+            {
+                for(int j = 0; j < numberOfPlayers; j++)
+                {
+                    putCardInPlayersHand(j, dealCard());
+                }
+            }
+            state = handlePlayer;
             break;
 
-        case blackjack:
+        case handlePlayer:
             /* code */
+            for(int i = 1; i < numberOfPlayers; i++) 
+            {
+                handleThisPlayer(i);                
+            }
+            state = handleHouse;
             break;
 
-        case hitPlayer:
+        case handleHouse:
             /* code */
-            break;
-
-        case stayPlayer:
-            /* code */
+            handleThisPlayer(0);
             break;
         
         default:
@@ -178,9 +194,10 @@ Player generatePlayer(int position)
     sprintf (player.name, "Player_%d", position);
     player.numOfCards = 0;
     player.sumOfCards = 0;
-    player.playerstate.isDead = 0;
+    player.playerstate.isBust = 0;
     player.playerstate.isStaying = 0;
     player.playerstate.isWinner = 0;
+    printf("generated player: %s\n", player.name);
     return player;
 }
 
@@ -231,7 +248,7 @@ void putCardInPlayersHand(int round, Card card)
             }
             else
             {            
-                Players[round].playerstate.isDead = 1;
+                Players[round].playerstate.isBust = 1;
             }
         }
     }
@@ -241,7 +258,6 @@ void putCardInPlayersHand(int round, Card card)
         {
             Players[round].playerstate.isWinner = 1;
             Players[round].playerstate.isStaying = 1;
-            state = blackjack;
         }
     }
 }
@@ -254,4 +270,31 @@ Card dealCard(void)
     return drawDeck[pos];
 }
 
+
+void handleThisPlayer(int playerNo)
+{
+    char a = ' ';
+    while (!Players[playerNo].playerstate.isStaying)
+    {
+        /* code */
+        printf("apasati h pentru hit sau s pentru stay: \n");
+        scanf("%c", &a);
+        switch (a)
+        {
+        case 'h':
+            /* code */
+            putCardInPlayersHand(playerNo, dealCard());
+            break;
+        
+        case 's':
+            /* code */
+            printf("OK");
+            Players[playerNo].playerstate.isStaying = 1;
+            break;
+
+        default:
+            break;
+        }
+    }
+}
 //////////////////////////////// IMPLEMENTATION ////////////////////////////////
