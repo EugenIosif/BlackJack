@@ -244,7 +244,6 @@ void putCardInPlayersHand(int round, Card card)
             state = blackjack;
         }
     }
-    
 }
 
 Card dealCard(void)
