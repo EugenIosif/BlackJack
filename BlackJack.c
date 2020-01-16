@@ -76,37 +76,37 @@ States state;
 //////////////////////////////// GLOBALS ////////////////////////////////
 
 //////////////////////////////// IMPLEMENTATION ////////////////////////////////
+
 void initFunction(void)
 {
     srand(time(NULL));
     generateDeck();
-    numberOfPlayers = 2;
-    state = dealFirstHand;
+    numberOfPlayers = 3;
+    state = startGame;
 }
 
 void testFunction(void)
 {
     Players[0] = generatePlayer(0);
     printf("%s\n", Players[0].name);
+    printf("%s%s", dealCard().number, dealCard().suit);
 }
 
 int main(void)
-{
-    
+{    
+    char a = ' ';
     initFunction();
     testFunction();
-    char a = ' ';
-
     while(state != gameOver)
     {
         switch (state)
         {
         case startGame:
             /* code */
-            printf("introduceti s pentru a incepe jocul sau q pentru a-l parasi: \n");
+            printf("introduceti s pentru a incepe jocul sau q pentru a-l parasi: ");
             scanf("%c", &a);
-            //printf("\n");
-
+            getchar();
+            printf("\n");
             switch (a)
             {
             case 's':
@@ -197,7 +197,7 @@ Player generatePlayer(int position)
     player.playerstate.isBust = 0;
     player.playerstate.isStaying = 0;
     player.playerstate.isWinner = 0;
-    printf("generated player: %s\n", player.name);
+    // printf("generated player: %s\n", player.name);
     return player;
 }
 
@@ -258,6 +258,7 @@ void putCardInPlayersHand(int round, Card card)
         {
             Players[round].playerstate.isWinner = 1;
             Players[round].playerstate.isStaying = 1;
+            // state = blackjack;
         }
     }
 }
@@ -265,20 +266,28 @@ void putCardInPlayersHand(int round, Card card)
 Card dealCard(void)
 {
     int pos = rand() % cardsInDrawDeck;
-    printf("deleting the %s%s\n", drawDeck[pos].number, drawDeck[pos].suit);
+    // printf("deleting the %s%s\n", drawDeck[pos].number, drawDeck[pos].suit);
     deleteFromDeck(drawDeck[pos]);
     return drawDeck[pos];
 }
 
-
 void handleThisPlayer(int playerNo)
 {
     char a = ' ';
+    printf("jucatorul %s are in mana urmatoarele carti: ", Players[playerNo].name);
+
+    for(int i = 0; i < Players[playerNo].numOfCards; i++) 
+    {
+        printf("%s%s ", Players[playerNo].cardsInHand[i].number, Players[playerNo].cardsInHand[i].suit);
+    }
+
     while (!Players[playerNo].playerstate.isStaying)
     {
         /* code */
-        printf("apasati h pentru hit sau s pentru stay: \n");
+        printf("apasati h pentru hit sau s pentru stay: ");
         scanf("%c", &a);
+        getchar();
+        printf("\n");
         switch (a)
         {
         case 'h':
@@ -288,7 +297,7 @@ void handleThisPlayer(int playerNo)
         
         case 's':
             /* code */
-            printf("OK");
+            printf("OK\n");
             Players[playerNo].playerstate.isStaying = 1;
             break;
 
