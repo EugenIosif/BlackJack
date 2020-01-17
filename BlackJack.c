@@ -101,10 +101,20 @@ void testFunction(void)
     strcpy(card.number, "8");
     card.value = 8;    
     putCardInPlayersHand(5, card);
+    // strcpy(card.suit, "♥");
+    // strcpy(card.number, "8");
+    // card.value = 8;    
+    // putCardInPlayersHand(5, card);
+
     strcpy(card.suit, "♥");
     strcpy(card.number, "A");
     card.value = 11;    
     putCardInPlayersHand(5, card);
+    strcpy(card.suit, "♥");
+    strcpy(card.number, "A");
+    card.value = 11;    
+    putCardInPlayersHand(5, card);
+    handleThisPlayer(5);
     showPlayersHand(5);
     strcpy(card.suit, "♥");
     strcpy(card.number, "8");
@@ -273,13 +283,12 @@ void putCardInPlayersHand(int round, Card card)
                     Players[round].sumOfCards -= 10;
                     Players[round].playerstate.hasAInHand = 1;
                 }
-                else
-                {
-                    showPlayersHand(round);
-                    printf("BUSTED!\n\n");
-                    Players[round].playerstate.isBust = 1;
-                    break;
-                }
+            }
+            if(!Players[round].playerstate.hasAInHand)
+            {
+                showPlayersHand(round);
+                printf("BUSTED!\n\n");
+                Players[round].playerstate.isBust = 1;
             }
         }else
         {
@@ -316,6 +325,7 @@ void handleThisPlayer(int playerNo)
         showPlayersHand(playerNo);
         printf("apasati h pentru hit sau s pentru stay: ");
         scanf(" %c", &a);
+        // a = 'h';
         getchar();
         printf("\n");
         switch (a)
