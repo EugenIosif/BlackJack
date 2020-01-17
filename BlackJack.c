@@ -275,14 +275,16 @@ void putCardInPlayersHand(int round, Card card)
                 }
                 else
                 {
-                    printf("BUSTED!\n");
+                    showPlayersHand(round);
+                    printf("BUSTED!\n\n");
                     Players[round].playerstate.isBust = 1;
                     break;
                 }
             }
         }else
         {
-            printf("BUSTED!\n");
+            showPlayersHand(round);
+            printf("BUSTED!\n\n");
             Players[round].playerstate.isBust = 1;
         }
     }
@@ -299,7 +301,6 @@ void putCardInPlayersHand(int round, Card card)
 Card dealCard(void)
 {
     int pos = rand() % cardsInDrawDeck;
-    // printf("deleting the %s%s\n", drawDeck[pos].number, drawDeck[pos].suit);
     deleteFromDeck(drawDeck[pos]);
     return drawDeck[pos];
 }
@@ -307,8 +308,6 @@ Card dealCard(void)
 void handleThisPlayer(int playerNo)
 {
     char a = ' ';
-
-    // showPlayersHand(playerNo);
 
     while (!(!Players[playerNo].playerstate.isStaying) 
           ^(!Players[playerNo].playerstate.isBust))
@@ -333,7 +332,7 @@ void handleThisPlayer(int playerNo)
             break;
 
         default:
-            printf("\nwhoops\n");
+            printf("\nWhoops\n");
             break;
         }
     }
