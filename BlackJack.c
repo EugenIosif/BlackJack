@@ -37,7 +37,7 @@ typedef struct Player
         unsigned char isStaying : 1;
         unsigned char isBust : 1;
         unsigned char isWinner : 1;
-        unsigned char _blank : 1;
+        unsigned char hasAInHand : 1;
         unsigned char _reserved : 4;
     } playerstate;
 }Player;
@@ -88,9 +88,29 @@ void initFunction(void)
 
 void testFunction(void)
 {
-    Players[0] = generatePlayer(0);
+    Players[5] = generatePlayer(5);
     printf("%s\n", Players[0].name);
-    printf("%s%s", dealCard().number, dealCard().suit);
+    // printf("%s%s", dealCard().number, dealCard().suit);
+    Card card = {"♥", "5", 5};
+    putCardInPlayersHand(5, card);
+    strcpy(card.suit, "♥");
+    strcpy(card.number, "2");
+    card.value = 2;
+    putCardInPlayersHand(5, card);
+    strcpy(card.suit, "♥");
+    strcpy(card.number, "8");
+    card.value = 8;    
+    putCardInPlayersHand(5, card);
+    strcpy(card.suit, "♥");
+    strcpy(card.number, "A");
+    card.value = 11;    
+    putCardInPlayersHand(5, card);
+    showPlayersHand(5);
+    strcpy(card.suit, "♥");
+    strcpy(card.number, "8");
+    card.value = 8;    
+    putCardInPlayersHand(5, card);
+    showPlayersHand(5);
 }
 
 int main(void)
@@ -105,7 +125,7 @@ int main(void)
         case startGame:
             /* code */
             printf("introduceti s pentru a incepe jocul sau q pentru a-l parasi: ");
-            scanf("%c", &a);
+            scanf(" %c", &a);
             getchar();
             printf("\n");
             switch (a)
@@ -113,7 +133,7 @@ int main(void)
             case 's':
                 /* code */
                 printf("introduceti numarul de jucatori: ");
-                scanf("%d", &numberOfPlayers);
+                scanf(" %d", &numberOfPlayers);
                 printf("\n");
 
                 for(int i = 0; i < numberOfPlayers; i++)
@@ -200,6 +220,7 @@ Player generatePlayer(int position)
     player.playerstate.isBust = 0;
     player.playerstate.isStaying = 0;
     player.playerstate.isWinner = 0;
+    player.playerstate.hasAInHand = 0;
     // printf("generated player: %s\n", player.name);
     return player;
 }
@@ -240,19 +261,28 @@ void putCardInPlayersHand(int round, Card card)
     Players[round].cardsInHand[Players[round].numOfCards] = card;
     Players[round].numOfCards++;
     Players[round].sumOfCards += card.value;
-
+    
     if(Players[round].sumOfCards > 21)
     {
-        for(int i = 0; i < Players[round].numOfCards; i++)
+        if(!Players[round].playerstate.hasAInHand)
         {
-            if(!strcmp(Players[round].cardsInHand[i].number, "A"))
+            for(int i = 0; i < Players[round].numOfCards; i++)
             {
-                Players[round].sumOfCards -= 10;
+                if(!strcmp(Players[round].cardsInHand[i].number, "A"))
+                {
+                    Players[round].sumOfCards -= 10;
+                    Players[round].playerstate.hasAInHand = 1;
+                }
+                else
+                {
+                    printf("BUSTED!\n");
+                    Players[round].playerstate.isBust = 1;
+                }
             }
-            else
-            {            
-                Players[round].playerstate.isBust = 1;
-            }
+        }else
+        {
+            printf("BUSTED!\n");
+            Players[round].playerstate.isBust = 1;
         }
     }
     else if(21 == Players[round].sumOfCards)
@@ -261,7 +291,6 @@ void putCardInPlayersHand(int round, Card card)
         {
             Players[round].playerstate.isWinner = 1;
             Players[round].playerstate.isStaying = 1;
-            // state = blackjack;
         }
     }
 }
@@ -278,17 +307,17 @@ void handleThisPlayer(int playerNo)
 {
     char a = ' ';
 
-    showPlayersHand(playerNo);
+    // showPlayersHand(playerNo);
 
-    while ((!Players[playerNo].playerstate.isStaying) 
-          | (Players[playerNo].playerstate.isBust))
+    while ( (!Players[playerNo].playerstate.isStaying) 
+          ||(!Players[playerNo].playerstate.isBust))
     {
         /* code */
+        showPlayersHand(playerNo);
         printf("apasati h pentru hit sau s pentru stay: ");
-        scanf("%c", &a);
+        scanf(" %c", &a);
         getchar();
         printf("\n");
-        showPlayersHand(playerNo);
         switch (a)
         {
         case 'h':
@@ -311,7 +340,7 @@ void handleThisPlayer(int playerNo)
 
 void showPlayersHand(int playerNo)
 {
-    printf("jucatorul %s are in mana urmatoarele carti: ", Players[playerNo].name);
+    printf("jucatorul %s are in mana urmatoarele carti cu o suma de %d: ", Players[playerNo].name, Players[playerNo].sumOfCards);
 
     for(int i = 0; i < Players[playerNo].numOfCards; i++) 
     {
