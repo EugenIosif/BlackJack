@@ -277,6 +277,7 @@ void putCardInPlayersHand(int round, Card card)
                 {
                     printf("BUSTED!\n");
                     Players[round].playerstate.isBust = 1;
+                    break;
                 }
             }
         }else
@@ -309,8 +310,8 @@ void handleThisPlayer(int playerNo)
 
     // showPlayersHand(playerNo);
 
-    while ( (!Players[playerNo].playerstate.isStaying) 
-          ||(!Players[playerNo].playerstate.isBust))
+    while (!(!Players[playerNo].playerstate.isStaying) 
+          ^(!Players[playerNo].playerstate.isBust))
     {
         /* code */
         showPlayersHand(playerNo);
