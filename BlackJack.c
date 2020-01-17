@@ -276,6 +276,7 @@ void putCardInPlayersHand(int round, Card card)
     {
         if(!Players[round].playerstate.hasAInHand)
         {
+            //maybe he has - checking
             for(int i = 0; i < Players[round].numOfCards; i++)
             {
                 if(!strcmp(Players[round].cardsInHand[i].number, "A"))
@@ -284,6 +285,7 @@ void putCardInPlayersHand(int round, Card card)
                     Players[round].playerstate.hasAInHand = 1;
                 }
             }
+            //he does not have - busted
             if(!Players[round].playerstate.hasAInHand)
             {
                 showPlayersHand(round);
