@@ -60,6 +60,7 @@ void printDeck(void);
 void deleteFromDeck(Card card);
 void putCardInPlayersHand(int round, Card card);
 void handleThisPlayer(int playerNo);
+void showPlayersHand(int playerNo);
 Player generatePlayer(int position);
 Card dealCard(void);
 
@@ -96,7 +97,7 @@ int main(void)
 {    
     char a = ' ';
     initFunction();
-    testFunction();
+    // testFunction();
     while(state != gameOver)
     {
         switch (state)
@@ -139,6 +140,7 @@ int main(void)
         case quitGame:
             /* code */            
             printf("Ciuss bye!\n");
+            state = gameOver;
             break;
         
         case dealFirstHand:
@@ -165,6 +167,7 @@ int main(void)
         case handleHouse:
             /* code */
             handleThisPlayer(0);
+            state = gameOver;
             break;
         
         default:
@@ -274,20 +277,18 @@ Card dealCard(void)
 void handleThisPlayer(int playerNo)
 {
     char a = ' ';
-    printf("jucatorul %s are in mana urmatoarele carti: ", Players[playerNo].name);
 
-    for(int i = 0; i < Players[playerNo].numOfCards; i++) 
-    {
-        printf("%s%s ", Players[playerNo].cardsInHand[i].number, Players[playerNo].cardsInHand[i].suit);
-    }
+    showPlayersHand(playerNo);
 
-    while (!Players[playerNo].playerstate.isStaying)
+    while ((!Players[playerNo].playerstate.isStaying) 
+          | (Players[playerNo].playerstate.isBust))
     {
         /* code */
         printf("apasati h pentru hit sau s pentru stay: ");
         scanf("%c", &a);
         getchar();
         printf("\n");
+        showPlayersHand(playerNo);
         switch (a)
         {
         case 'h':
@@ -302,8 +303,21 @@ void handleThisPlayer(int playerNo)
             break;
 
         default:
+            printf("\nwhoops\n");
             break;
         }
     }
+}
+
+void showPlayersHand(int playerNo)
+{
+    printf("jucatorul %s are in mana urmatoarele carti: ", Players[playerNo].name);
+
+    for(int i = 0; i < Players[playerNo].numOfCards; i++) 
+    {
+        printf("%s%s ", Players[playerNo].cardsInHand[i].number, Players[playerNo].cardsInHand[i].suit);
+    }
+
+    printf("\n");
 }
 //////////////////////////////// IMPLEMENTATION ////////////////////////////////
