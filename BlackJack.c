@@ -23,8 +23,8 @@ typedef enum States
     quitGame,
     dealFirstHand,
     handlePlayer,
-    handleHouse
-    //add more gamestates
+    handleHouse,
+    handleCredit
 }States;
 
 typedef struct Player
@@ -33,12 +33,15 @@ typedef struct Player
     Card cardsInHand[5];
     unsigned short int numOfCards;
     unsigned short int sumOfCards;
+    int credit;
+    int bidValue;
     struct playerState {
         unsigned char isStaying : 1;
         unsigned char isBust : 1;
         unsigned char isWinner : 1;
         unsigned char hasAInHand : 1;
-        unsigned char _reserved : 4;
+        unsigned char BLACKJACK: 1;
+        unsigned char _reserved : 3;
     } playerstate;
 }Player;
 
@@ -61,6 +64,7 @@ void deleteFromDeck(Card card);
 void putCardInPlayersHand(int round, Card card);
 void handleThisPlayer(int playerNo);
 void showPlayersHand(int playerNo);
+void handlePlayerCredit(int playerNo);
 Player generatePlayer(int position);
 Card dealCard(void);
 
@@ -82,45 +86,41 @@ void initFunction(void)
 {
     srand(time(NULL));
     generateDeck();
-    numberOfPlayers = 3;
     state = startGame;
 }
 
 void testFunction(void)
 {
     Players[5] = generatePlayer(5);
-    printf("%s\n", Players[0].name);
-    // printf("%s%s", dealCard().number, dealCard().suit);
-    Card card = {"♥", "5", 5};
-    putCardInPlayersHand(5, card);
-    strcpy(card.suit, "♥");
-    strcpy(card.number, "2");
-    card.value = 2;
-    putCardInPlayersHand(5, card);
-    strcpy(card.suit, "♥");
-    strcpy(card.number, "8");
-    card.value = 8;    
-    putCardInPlayersHand(5, card);
-    // strcpy(card.suit, "♥");
-    // strcpy(card.number, "8");
-    // card.value = 8;    
-    // putCardInPlayersHand(5, card);
+    Players[6] = generatePlayer(6);
+    Players[7] = generatePlayer(7);
 
-    strcpy(card.suit, "♥");
-    strcpy(card.number, "A");
-    card.value = 11;    
-    putCardInPlayersHand(5, card);
-    strcpy(card.suit, "♥");
-    strcpy(card.number, "A");
-    card.value = 11;    
-    putCardInPlayersHand(5, card);
-    handleThisPlayer(5);
-    showPlayersHand(5);
-    strcpy(card.suit, "♥");
-    strcpy(card.number, "8");
-    card.value = 8;    
-    putCardInPlayersHand(5, card);
-    showPlayersHand(5);
+    Players[5].credit = 10000;
+    Players[5].bidValue = 50;
+    Players[6].credit = 10000;
+    Players[6].bidValue = 50;
+    Players[7].credit = 10000;
+    Players[7].bidValue = 50;
+
+    Card card1 = {"♥", "A", 11};
+    Card card2 = {"♥", "Q", 10};
+    Card card3 = {"♥", "2", 2};
+    Card card4 = {"♥", "9", 9};
+    Card card5 = {"♥", "8", 8};
+    
+    putCardInPlayersHand(5, card1);   
+    putCardInPlayersHand(5, card2);
+    handlePlayerCredit(5);
+    
+    putCardInPlayersHand(6, card3);
+    putCardInPlayersHand(6, card4);
+    putCardInPlayersHand(6, card2);
+    handlePlayerCredit(6);
+
+    putCardInPlayersHand(7, card4);
+    putCardInPlayersHand(7, card5);
+    putCardInPlayersHand(7, card2);
+    handlePlayerCredit(7);
 }
 
 int main(void)
@@ -150,6 +150,22 @@ int main(void)
                 {
                     Players[i] = generatePlayer(i);
                 }
+
+                printf("Fiecare jucator incepe cu 10 000 de credite!\n");
+
+                for(int i = 0; i < numberOfPlayers; i++)
+                {
+                    Players[i].credit = 10000;
+                }
+
+                for(int i = 1; i < numberOfPlayers; i++)
+                {
+                    printf("%s: Cat vreti sa pariati? ", Players[i].name);
+                    scanf(" %d", &Players[i].bidValue);
+                    printf("\n");
+                }
+
+                
                 
                 state = dealFirstHand;
                 break;
@@ -197,6 +213,20 @@ int main(void)
         case handleHouse:
             /* code */
             handleThisPlayer(0);
+            state = handleCredit;
+            break;
+
+        case handleCredit:
+            /* code */
+            for(int i = 1; i < numberOfPlayers; i++)
+            {
+                handlePlayerCredit(0);
+            }
+
+            for(int i = 1; i < numberOfPlayers; i++)
+            {
+                printf("%s mai are %d banile\n", Players[i].name, Players[i].credit);
+            }
             state = gameOver;
             break;
         
@@ -231,6 +261,8 @@ Player generatePlayer(int position)
     player.playerstate.isStaying = 0;
     player.playerstate.isWinner = 0;
     player.playerstate.hasAInHand = 0;
+    player.credit = 0;
+    player.bidValue = 0;
     // printf("generated player: %s\n", player.name);
     return player;
 }
@@ -302,9 +334,10 @@ void putCardInPlayersHand(int round, Card card)
     else if(21 == Players[round].sumOfCards)
     {
         if(2 == Players[round].numOfCards)
+        //to be tested better
+        // if(state = dealFirstHand)
         {
-            Players[round].playerstate.isWinner = 1;
-            Players[round].playerstate.isStaying = 1;
+            Players[round].playerstate.BLACKJACK = 1;
         }
     }
 }
@@ -360,5 +393,27 @@ void showPlayersHand(int playerNo)
     }
 
     printf("\n");
+}
+
+void handlePlayerCredit(int playerNo)
+{
+    //non-efficient way of doing things, but pretty ok
+    if(Players[playerNo].sumOfCards > Players[0].sumOfCards && 
+      !Players[playerNo].playerstate.isBust && 
+      !Players[playerNo].playerstate.BLACKJACK)
+    {
+        Players[playerNo].playerstate.isWinner = 1;
+    }
+
+    if(Players[playerNo].playerstate.isBust)
+    {
+        Players[playerNo].credit -= Players[playerNo].bidValue;
+    }else if(Players[playerNo].playerstate.isWinner)
+    {
+        Players[playerNo].credit += Players[playerNo].bidValue;
+    }else if(Players[playerNo].playerstate.BLACKJACK)
+    {
+         Players[playerNo].credit += (Players[playerNo].bidValue*1.5);
+    }
 }
 //////////////////////////////// IMPLEMENTATION ////////////////////////////////
