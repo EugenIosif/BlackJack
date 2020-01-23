@@ -11,7 +11,7 @@
 
 typedef struct Card
 {
-    char suit[5]; 
+    char suit[5];
     char number[3];
     int value;
 } Card;
@@ -108,7 +108,7 @@ void testFunction(void)
     Card card4 = {"♥", "9", 9};
     Card card5 = {"♥", "8", 8};
     
-    putCardInPlayersHand(5, card1);   
+    putCardInPlayersHand(5, card1);
     putCardInPlayersHand(5, card2);
     handlePlayerCredit(5);
     
@@ -164,14 +164,12 @@ int main(void)
                     scanf(" %d", &Players[i].bidValue);
                     printf("\n");
                 }
-
-                
                 
                 state = dealFirstHand;
                 break;
             
             case 'q':
-                /* code */                
+                /* code */
                 state = quitGame;
                 break;
 
@@ -180,7 +178,7 @@ int main(void)
                 printf("WRONG!\n");
                 //state = startGame;
                 break;
-            }            
+            }
             break;
 
         case quitGame:
@@ -203,9 +201,9 @@ int main(void)
 
         case handlePlayer:
             /* code */
-            for(int i = 1; i < numberOfPlayers; i++) 
+            for(int i = 1; i < numberOfPlayers; i++)
             {
-                handleThisPlayer(i);                
+                handleThisPlayer(i);
             }
             state = handleHouse;
             break;
@@ -234,7 +232,6 @@ int main(void)
             break;
         }
     }
-
     return 0;
 }
 
@@ -275,7 +272,7 @@ void printDeck(void)
         {
             printf("%s%s ", drawDeck[i*13+j].number, (drawDeck[i*13+j].suit));
         }
-        printf("\n");        
+        printf("\n");
     } 
 }
 
@@ -285,15 +282,15 @@ void deleteFromDeck(Card card)
     {
         if(!strcmp(card.suit, drawDeck[i].suit))
         {
-        if(!strcmp(card.number, drawDeck[i].number))
-        {
-            for(int j = i; j < cardsInDrawDeck; j++)
+            if(!strcmp(card.number, drawDeck[i].number))
             {
-                drawDeck[j] = drawDeck[j+1];
+                for(int j = i; j < cardsInDrawDeck; j++)
+                {
+                    drawDeck[j] = drawDeck[j+1];
+                }
+                cardsInDrawDeck--;
+                break;
             }
-            cardsInDrawDeck--;
-            break;
-        }
         }
     }
 }
@@ -353,7 +350,7 @@ void handleThisPlayer(int playerNo)
 {
     char a = ' ';
 
-    while (!(!Players[playerNo].playerstate.isStaying) 
+    while (!(!Players[playerNo].playerstate.isStaying)
           ^(!Players[playerNo].playerstate.isBust))
     {
         /* code */
@@ -399,7 +396,7 @@ void handlePlayerCredit(int playerNo)
 {
     //non-efficient way of doing things, but pretty ok
     if(Players[playerNo].sumOfCards > Players[0].sumOfCards && 
-      !Players[playerNo].playerstate.isBust && 
+      !Players[playerNo].playerstate.isBust &&
       !Players[playerNo].playerstate.BLACKJACK)
     {
         Players[playerNo].playerstate.isWinner = 1;
